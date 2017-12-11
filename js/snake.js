@@ -48,17 +48,19 @@ var speed = 1,
         
         onUpdate() {
             var last = this.move();
-            if (!last) return false;
-            if (this.collidesWithFood()) {
+            if (!last) return 0;
+            if (this.collides(foodLoc)) {
                 this.segments.push(last);
-                generateFood();
+                var succ = generateFood();
+                if (!succ) return 2;
             }
             
-            return true;
+            return 1;
         },
         
         move() {
             var dir = new Point(keyState.hor, keyState.ver);
+//            var dir = new Point(0, 0).clone(keyState.queue.getDir());
             var p1 = this.segments[0];
             var p2 = this.segments[1];
             var next = new Point(p1.x + dir.x, p1.y + dir.y);
@@ -83,24 +85,15 @@ var speed = 1,
             
             this.segments[0].addVec(dir);
             
-            if (this.collidesWithSelf()) return false;
-            
+            for (var i = 1; i < this.segments.length; i++) {
+                if (this.collides(this.segments[i])) return false;
+            }
+                        
             return last;
         },
         
-        collidesWithSelf() {
-            for (var i = 0; i < this.segments.length; ++i) {
-                for (var j = this.segments.length - 1; j > i; --j) {
-                    var seg = this.segments[i];
-                    var next = this.segments[j];
-                    if (seg.equals(next)) return true;
-                }
-            }
-            return false;
-        },
-        
-        collidesWithFood() {
-            return this.segments[0].equals(foodLoc);
+        collides(p) {
+            return this.segments[0].equals(p);
         },
         
         reset() {
@@ -111,36 +104,30 @@ var speed = 1,
 function renderMap() {
     var r = new Rect(0, 0, 1, 1);
     var p = new Point(0, 0);
-    var off = 0.1;
     
-    p.clone(snake.segments[0]).add(0.1, 0.1).toRender();
-    r.transform(p, 0.8 * screenSize.x/mapSize, 0.8 * screenSize.y/mapSize);
-    r.draw("white");
+    renderPoint(p, r, snake.segments[0], "white");
     
     for (var i = 1; i < snake.segments.length; i++) {
         var el = snake.segments[i];
         var middle = snake.segments[i - 1].getMiddle(el);
         
-        p.clone(middle).add(off, off).toRender();
-        r.transform(p, (1 - 2*off) * screenSize.x/mapSize, (1 - 2*off) * screenSize.y/mapSize);
-        r.draw("white");
+        renderPoint(p, r, middle, "white");
         
-        p.clone(el).add(off, off).toRender();
-        r.transform(p, (1 - 2*off) * screenSize.x/mapSize, (1 - 2*off) * screenSize.y/mapSize);
-        r.draw("white");
+        renderPoint(p, r, el, "white");
     }
     
     // Jedzonko
-    p.clone(foodLoc).add(off, off).toRender();
+    renderPoint(p, r, foodLoc, "green");
+    
+    // Głowa
+    renderPoint(p, r, snake.segments[0], "#64ff64");
+}
+
+function renderPoint(p, r, target, color) {
+    var off = 0.1;
+    p.clone(target).add(0.1, 0.1).toRender();
     r.transform(p, (1 - 2*off) * screenSize.x/mapSize, (1 - 2*off) * screenSize.y/mapSize);
-    
-    r.draw("green");
-    
-    // Głowa   
-    p.clone(snake.segments[0]).add(off, off).toRender();
-    r.transform(p, (1 - 2*off) * screenSize.x/mapSize, (1 - 2*off) * screenSize.y/mapSize);
-    
-    r.draw("#64ff64");
+    r.draw(color);
 }
 
 function onStart() {
@@ -150,8 +137,16 @@ function onStart() {
 function onUpdate() {
     var success = snake.onUpdate();
     renderMap();
-    if (!success) {
-        triggerGameOver();
+    switch (success) {
+        case 0: {
+            triggerGameOver();
+            break;
+        }
+        case 2: {
+            triggerWin();
+            break;
+        }
+            
     }
 }
 
@@ -173,9 +168,12 @@ function generateFood() {
         else i++;
     }
     
+    if (locs.length == 0) return false;
+    
     var value = locs[Math.floor(Math.random() * locs.length)];
     
     foodLoc.set(value % mapSize, Math.floor(value / mapSize));
+    return true;
 }
 
 function generatePossibilities() {
@@ -184,6 +182,10 @@ function generatePossibilities() {
         locs[i] = i;
     }
     return locs;
+}
+
+function triggerWin() {
+    gameState = "won";
 }
 
 function triggerGameOver() {

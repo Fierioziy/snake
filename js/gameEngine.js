@@ -10,11 +10,28 @@ var canvas = document.getElementById("canvas"),
     keyState = {
         ver: 0,
         hor: 1,
+        /*queue: {
+            last: new Point(1, 0),
+            buffer: [],
+            getDir() {
+                var first = this.last;
+                if (this.buffer.length > 0) first = this.buffer.shift();
+                return first;
+            },
+            add(p) {
+                this.buffer.push(p);
+            },
+            reset() {
+                this.buffer = [];
+                this.last = new Point(1, 0);
+            }
+        },*/
         spacebar: false,
         prevSpacebar: false,
         reset() {
             this.ver = 0;
             this.hor = 1;
+//            this.queue.reset();
             this.spacebar = false;
             this.prevSpacebar = false;
         },
@@ -24,6 +41,7 @@ var canvas = document.getElementById("canvas"),
                     if (isPressed) {
                         this.hor = -1;
                         this.ver = 0;
+//                        this.queue.add(new Point(-1, 0));
                     }
                     break;
                 }
@@ -31,6 +49,7 @@ var canvas = document.getElementById("canvas"),
                     if (isPressed) {
                         this.hor = 1;
                         this.ver = 0;
+//                        this.queue.add(new Point(1, 0));
                     }
                     break;
                 }
@@ -38,6 +57,7 @@ var canvas = document.getElementById("canvas"),
                     if (isPressed) {
                         this.hor = 0;
                         this.ver = -1;
+//                        this.queue.add(new Point(0, -1));
                     }
                     break;
                 }
@@ -45,6 +65,7 @@ var canvas = document.getElementById("canvas"),
                     if (isPressed) {
                         this.hor = 0;
                         this.ver = 1;
+//                        this.queue.add(new Point(0, 1));
                     }
                     break;
                 }
@@ -59,15 +80,22 @@ var canvas = document.getElementById("canvas"),
                              0.3 * screenSize.x, 0.1 * screenSize.y),
     gameOverRect = new Rect(screenSize.cx, screenSize.cy,
                             0.5 * screenSize.x, 0.1 * screenSize.y),
+    gameWinRect = new Rect(screenSize.cx, screenSize.cy,
+                            0.5 * screenSize.x, 0.1 * screenSize.y),
     startText = new Text("Press space to start", 0.025 * screenSize.x /*20*/, "#FFFFFF"),
     gameOverText = new Text("Game Over! Press space to play again.", 0.025 * screenSize.x /*20*/, "#FFFFFF"),
-    rectColor = "#AAAAAA";
+    gameWinText = new Text("You won! Press space to play again.", 0.025 * screenSize.x /*20*/, "#000000");
 
 function run() {
     switch (gameState) {
         case "play": {
             clearCanvas();
             onUpdate();
+            break;
+        }
+        case "won": {
+            drawWin();
+            gameState = "postGameOver";
             break;
         }
         case "gameOver": {
@@ -98,6 +126,11 @@ function drawStartScreen() {
     clearCanvas();
     startScreenRect.drawCentered("#555555");
     startText.drawCentered(screenSize.cx, screenSize.cy);
+}
+
+function drawWin() {
+    gameWinRect.drawCentered("#7CC64D");
+    gameWinText.drawCentered(screenSize.cx, screenSize.cy);
 }
 
 function drawGameOver() {
