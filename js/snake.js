@@ -59,8 +59,7 @@ var speed = 1,
         },
         
         move() {
-            var dir = new Point(keyState.hor, keyState.ver);
-//            var dir = new Point(0, 0).clone(keyState.queue.getDir());
+            var dir = new Point(0, 0).clone(keyState.queue.getDir());
             var p1 = this.segments[0];
             var p2 = this.segments[1];
             var next = new Point(p1.x + dir.x, p1.y + dir.y);
@@ -117,16 +116,20 @@ function renderMap() {
     }
     
     // Jedzonko
-    renderPoint(p, r, foodLoc, "green");
+//    renderPoint(p, r, foodLoc, "green");
+    var c = new Circle((foodLoc.x + 0.5) * screenSize.prop,
+                       (foodLoc.y + 0.5) * screenSize.prop,
+                       0.3 * screenSize.prop);
+    c.draw("green");
     
     // Głowa
-    renderPoint(p, r, snake.segments[0], "#64ff64");
+    renderPoint(p, r, snake.segments[0], "#00649b");
 }
 
 function renderPoint(p, r, target, color) {
     var off = 0.1;
     p.clone(target).add(0.1, 0.1).toRender();
-    r.transform(p, (1 - 2*off) * screenSize.x/mapSize, (1 - 2*off) * screenSize.y/mapSize);
+    r.transform(p, (1 - 2*off) * screenSize.prop, (1 - 2*off) * screenSize.prop);
     r.draw(color);
 }
 
@@ -146,7 +149,6 @@ function onUpdate() {
             triggerWin();
             break;
         }
-            
     }
 }
 
@@ -154,7 +156,6 @@ function generateFood() {
     var locs = generatePossibilities();
     
     snake.segments.forEach(function (el) {
-//        locs.splice(el.x + el.y * mapSize, 1);
         locs[el.x + el.y * mapSize] = -1;
     });
     

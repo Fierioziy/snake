@@ -17,6 +17,22 @@ Rect.prototype.drawCentered = function (color) {
     drawCenteredRect(this.x1, this.y1, this.x2, this.y2, color);
 };
 
+function Circle(x, y, r) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+};
+Circle.prototype.draw = function (color) {
+    drawCircle(this.x, this.y, this.r, color);
+};
+Circle.prototype.setCenter = function (x, y) {
+    this.x = x;
+    this.y = y;
+};
+Circle.prototype.setRadius = function (r) {
+    this.r = r;
+};
+
 function Text(s, size, color) {
     this.s = s;
     this.size = size;
@@ -65,6 +81,14 @@ function drawRect(x1, y1, x2, y2, color) {
     }
     ctx.beginPath();
     ctx.rect(x1, y1, x2 - x1, y2 - y1);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.closePath();
+}
+
+function drawCircle(x, y, r, color) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI*2, false);
     ctx.fillStyle = color;
     ctx.fill();
     ctx.closePath();

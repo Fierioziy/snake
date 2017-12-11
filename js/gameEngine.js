@@ -5,33 +5,30 @@ var canvas = document.getElementById("canvas"),
         x: canvas.width,
         y: canvas.height,
         cx: canvas.width / 2,
-        cy: canvas.height / 2
+        cy: canvas.height / 2,
+        prop: canvas.width / mapSize
     },
     keyState = {
-        ver: 0,
-        hor: 1,
-        /*queue: {
-            last: new Point(1, 0),
-            buffer: [],
+        queue: {
+            buffer: [new Point(1, 0)],
             getDir() {
-                var first = this.last;
-                if (this.buffer.length > 0) first = this.buffer.shift();
+                if (this.buffer.length > 1) this.buffer.shift();
+                var first = this.buffer[0];
                 return first;
             },
             add(p) {
-                this.buffer.push(p);
+                if (!this.buffer[this.buffer.length - 1].equals(p)) {
+                    this.buffer.push(p);
+                }
             },
             reset() {
-                this.buffer = [];
-                this.last = new Point(1, 0);
+                this.buffer = [new Point(1, 0)];
             }
-        },*/
+        },
         spacebar: false,
         prevSpacebar: false,
         reset() {
-            this.ver = 0;
-            this.hor = 1;
-//            this.queue.reset();
+            this.queue.reset();
             this.spacebar = false;
             this.prevSpacebar = false;
         },
@@ -39,33 +36,25 @@ var canvas = document.getElementById("canvas"),
             switch (keyCode) {
                 case 65: {
                     if (isPressed) {
-                        this.hor = -1;
-                        this.ver = 0;
-//                        this.queue.add(new Point(-1, 0));
+                        this.queue.add(new Point(-1, 0));
                     }
                     break;
                 }
                 case 68: {
                     if (isPressed) {
-                        this.hor = 1;
-                        this.ver = 0;
-//                        this.queue.add(new Point(1, 0));
+                        this.queue.add(new Point(1, 0));
                     }
                     break;
                 }
                 case 87: {
                     if (isPressed) {
-                        this.hor = 0;
-                        this.ver = -1;
-//                        this.queue.add(new Point(0, -1));
+                        this.queue.add(new Point(0, -1));
                     }
                     break;
                 }
                 case 83: {
                     if (isPressed) {
-                        this.hor = 0;
-                        this.ver = 1;
-//                        this.queue.add(new Point(0, 1));
+                        this.queue.add(new Point(0, 1));
                     }
                     break;
                 }
